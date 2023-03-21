@@ -1,0 +1,109 @@
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+    </head> 
+    <body>
+        {    
+        let $sr := doc("sr.xml")
+        return
+        <div>
+            <h2>0. Example query: Names of all channels of type Rikskanal</h2>
+            <ul id="query0">
+                {
+                    for $c in $sr/sr/channels/channel
+                        where $c/channeltype = "Rikskanal"
+                        return <li>{string($c/name)}</li>
+                }
+            </ul>
+
+            <h2>1. List the distinct editors of the channel with the id 132</h2>
+            <ul id="query1">
+                {  
+                    for $c in distinct-values(for $k in $sr/sr/programs/program 
+                        where $k/channel = "132"
+                        return $k/editor) 
+                    return <li> {string($c)}</li>
+
+                }
+            </ul>
+
+            <h2>2. List the distinct names of the editors of broadcasts with a duration less than 143</h2>
+            <ul id="query2">
+                {   
+
+                   for $c in $sr/sr/broadcasts/broadcast
+                        where $c/duration lt "143"
+                          let $program_id := $c/program
+                    for $x in $sr/sr/programs/program
+                       where $x/@id = $program_id
+                          group by $name := $x/editor
+                    return <li>{string($name)}</li>
+             
+                }
+            </ul>
+
+            <h2>3. List the total time of all broadcasts of channel P6</h2>
+            <ul id="query3">
+                {   
+                     
+                    let $total_sum := sum(for $x in $sr/sr/channels/channel
+                        where $x/name = "P6"
+                        let $channel_id := $x/@id
+                    for $y in $sr/sr/programs/program
+                        where $channel_id = $y/channel
+                        let $program_id := $y/@id                
+                    for $z in $sr/sr/broadcasts/broadcast
+                        for $temp in $program_id
+                            where $z/program = $temp
+                        return $z/duration)
+                    return <li>{string($total_sum)}</li>
+        
+                }
+            </ul>
+
+            <h2>4. List editors of channel P2, along with the amount of distinct categories they have worked on, on the format 'Editor,categories'</h2>
+            <ul id="query4">
+                {
+                    let $channel_id := for $c in $sr/sr/channels/channel
+                        where $c/name = "P2"
+                        return $c/@id
+                    let $name_cat := distinct-values(for $e in $sr/sr/programs/program
+                        where $e/channel = $channel_id
+                        return $e/editor)
+                    for $n in $name_cat
+                        let $e_name := $n
+                        let $cat := count(distinct-values(for $x in $sr/sr/programs/program
+                            where $x/editor = $n
+                            return $x/category))
+                    return <li>{concat(string($e_name),",",string($cat))}</li>                     
+
+                }
+            </ul>
+            <h2>5. List the distinct editors who have never worked on channel P3</h2>
+            <ul id="query5">
+                {
+                    <li>{concat('your',' answer')}</li>
+                }
+            </ul>
+            <h2>6. List the top 7 programs names in terms of highest total broadcast time</h2>
+            <ul id="query6">
+                {
+                    <li>{concat('your',' answer')}</li>
+                }
+            </ul>
+            <h2>7. List the lastest broadcast date with the category 'Livsåskådning'.</h2>
+            <ul id="query7">
+                {
+                    <li>{concat('your',' answer')}</li>
+                }
+            </ul>
+            <h2>8. List the 6-10th best editors in terms of highest total broadcast time of programs with category 'Musik'</h2>
+            <ul id="query8">
+                {
+                    <li>{concat('your',' answer')}</li>
+                }
+            </ul>
+        </div>
+        }
+    </body>
+</html>
