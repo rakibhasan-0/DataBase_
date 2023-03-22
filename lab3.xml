@@ -87,18 +87,16 @@
                         return $c/@id 
 
                     let $editor_with_p3 := distinct-values(for $x in $sr/sr/programs/program
-                        where $x/channel != $channel_id
+                        where $x/channel = $channel_id
                         return $x/editor
                     )
 
-                    let $editor_without_p3 := distinct-values(for $z in $sr/sr/programs/program
-                        where $z/channel = $channel_id
+                    let $editor_without_p3 := distinct-values(for $z in $sr/sr/programs/program[not(editor = $editor_with_p3)]
                         return $z/editor
                     )
-
-                    for $t in $editor_without_p3, $g in $editor_with_p3
-                    for where not (contains(string($g),string($t)))
-                    return <li>{string($t)}</li>
+                    
+                    for $temp in $editor_without_p3
+                        return <li>{string($temp)}</li>
                     
                 }
             </ul>
