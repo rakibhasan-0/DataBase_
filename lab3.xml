@@ -32,12 +32,13 @@
                 {   
 
                     let $editor_id := for $c in $sr/sr/broadcasts/broadcast
-                        where $c/duration < "143"
+                        where $c/duration < 143
                         return $c/program
 
 
                     let $editor_name := distinct-values (for $x in $sr/sr/programs/program[@id = $editor_id]
-                       return $x/editor)
+                        order by $x/editor
+                        return $x/editor)
                    
                     for $e in $editor_name
                         return <li>{string($e)}</li>
@@ -101,36 +102,51 @@
                     
                     for $temp in $editor_without_p3
                         return <li>{string($temp)}</li>
-                    
                 }
+
             </ul>
             <h2>6. List the top 7 programs names in terms of highest total broadcast time</h2>
             <ul id="query6">
                 {   
-                    let $name_program := for $c in distinct-values($sr/sr/broadcasts/broadcast/program)
+                    let $name_program := (for $c in distinct-values($sr/sr/broadcasts/broadcast/program)
                       let $broadcast_time := sum(for $x in $sr/sr/broadcasts/broadcast
                           where $x/program = $c
                             return $x/duration)
                         order by $broadcast_time descending
-                        return $sr//programs/program[@id=$c]/name
+                    return $sr/sr/programs/program[@id=$c]/name)
                                           
                     for $i in $name_program[position() le 7]
                       return <li>{string($i)}</li>
-
 
                 }
             </ul>
             <h2>7. List the lastest broadcast date with the category 'Livsåskådning'.</h2>
             <ul id="query7">
-                {
-                    <li>{concat('your',' answer')}</li>
+                {   
+                    let $id := for $i in $sr/sr/categories/category
+                        where $i/name = "Livsåskådning"
+                        return $i/@id
+                    
+                    let $program_id := for $k in $sr/sr/programs/program
+                        where $k/category = $id
+                        return $k/@id
+
+                    let $latest_date := for $z in $sr/sr/broadcasts/broadcast
+                        let $k := for $y in $program_id
+                            where $z/program = $y
+                            return xs:dateTime($z/broadcast_date)
+                        order by $k descending
+                    return $k
+                    return <li>{string($latest_date[1])}</li>
+
                 }
             </ul>
             <h2>8. List the 6-10th best editors in terms of highest total broadcast time of programs with category 'Musik'</h2>
             <ul id="query8">
                 {
-                    <li>{concat('your',' answer')}</li>
-                }
+
+                    
+               }
             </ul>
         </div>
         }
