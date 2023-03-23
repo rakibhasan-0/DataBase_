@@ -145,8 +145,20 @@
             <ul id="query8">
                 {
 
+                    let $catid := $sr/sr/categories/category[name = 'Musik']/@id
+
+                      let $pro := (
+                          for $p in $sr/sr/programs/program[category = $catid]
+                              let $e := $p/editor
+                            let $b := $sr/sr/broadcasts/broadcast[program= $p/@id]/duration
+                            group by $e
+                            order by sum($b) descending
+                            return <li>{data($e)}</li>
+                      )
+                      return ($pro[position() = (6 to 10)])
                     
-               }
+                   
+                }
             </ul>
         </div>
         }
